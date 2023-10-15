@@ -1,6 +1,8 @@
 package main
 
-import "github.com/AP/myMiddleware/infrastructure/srh"
+import (
+	"github.com/MatheusAlvesAlmeida/myMiddleware/infrastructure/srh"
+)
 
 func main() {
 	server := srh.ServerRequestHandler{

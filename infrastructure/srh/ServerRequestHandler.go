@@ -50,6 +50,7 @@ func (srh *ServerRequestHandler) receiveMessage(conn net.Conn) []byte {
 }
 
 func (srh *ServerRequestHandler) sendMessage(conn net.Conn, message []byte) {
+	fmt.Printf("Debug info - Received message: %s\n", string(message))
 	fromServerText := "From server: "
 	message = append([]byte(fromServerText), message...)
 	_, err := conn.Write(message)

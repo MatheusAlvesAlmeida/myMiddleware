@@ -3,20 +3,23 @@ package main
 import (
 	"fmt"
 
-	"github.com/AP/myMiddleware/infrastructure/crh"
+	"github.com/MatheusAlvesAlmeida/myMiddleware/infrastructure/crh"
 )
 
 func main() {
 	crh := crh.ClientRequestHandler{
 		ServerHost: "localhost",
 		ServerPort: "8080",
-		nil,
+		Conn:       nil,
 	}
 
 	protocol := "tcp"
 
 	message := []byte("Hello, Server!")
-	response := crh.SendReceive(message, protocol)
-
-	fmt.Println("Server Response:", string(response))
+	response, err := crh.SendReceive(message, protocol)
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		fmt.Println("Server Response:", string(response))
+	}
 }
