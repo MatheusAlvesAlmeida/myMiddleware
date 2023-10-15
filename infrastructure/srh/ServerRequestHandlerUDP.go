@@ -6,49 +6,56 @@ import (
 )
 
 type ServerRequestHandlerUDP struct {
-	Protocol string
+	ServerHost string
+	ServerPort string
+	clientAddr *net.UDPAddr
+	Conn       *net.UDPConn
 }
 
-func (srh *ServerRequestHandlerUDP) Server(ServerHost, ServerPort string) error {
-	listenAddr := ServerHost + ":" + ServerPort
-	udpAddr, err := net.ResolveUDPAddr("udp", listenAddr)
-	if err != nil {
-		return err
-	}
+func (srh *ServerRequestHandlerUDP) Server(ServerHost, ServerPort string) *ServerRequestHandlerUDP {
+	response := new(ServerRequestHandlerUDP)
+	response.ServerHost = ServerHost
+	response.ServerPort = ServerPort
+	response.clientAddr = nil
+	response.Conn = nil
 
-	conn, err := net.ListenUDP("udp", udpAddr)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
+	return response
+}
 
-	fmt.Printf("Server listening on %s (UDP)...\n", listenAddr)
-
-	for {
-		buffer := make([]byte, 1024)
-		n, addr, err := conn.ReadFromUDP(buffer)
+func (srh *ServerRequestHandlerUDP) ReceiveMessage() ([]byte, *net.UDPAddr, error) {
+	if srh.Conn == nil {
+		udpAddr, err := net.ResolveUDPAddr("udp", srh.ServerHost+":"+srh.ServerPort)
 		if err != nil {
-			fmt.Printf("Error reading data: %s\n", err)
-			continue
+			return nil, nil, err
 		}
 
-		go srh.handleConnection(conn, addr, buffer[:n])
+		conn, err := net.ListenUDP("udp", udpAddr)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		srh.Conn = conn
 	}
+
+	buffer := make([]byte, 1024)
+	_, remoteAddr, err := srh.Conn.ReadFromUDP(buffer)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return buffer, remoteAddr, nil
 }
 
-func (srh *ServerRequestHandlerUDP) handleConnection(conn *net.UDPConn, addr *net.UDPAddr, data []byte) {
-	receivedMessage := srh.receiveMessage(data)
-	srh.sendMessage(conn, addr, receivedMessage)
-}
+func (srh *ServerRequestHandlerUDP) SendMessage(clientAddr *net.UDPAddr, message []byte) error {
+	if srh.Conn == nil {
+		return fmt.Errorf("connection is nil")
+	}
 
-func (srh *ServerRequestHandlerUDP) receiveMessage(data []byte) []byte {
-	return data
-}
-
-func (srh *ServerRequestHandlerUDP) sendMessage(conn *net.UDPConn, addr *net.UDPAddr, message []byte) {
-	fmt.Printf("Debug info - Received message: %s\n", string(message))
-	_, err := conn.WriteTo(message, addr)
+	_, err := srh.Conn.WriteToUDP(message, clientAddr)
 	if err != nil {
 		fmt.Printf("Error sending response: %s\n", err)
+		return err
 	}
+
+	return nil
 }
