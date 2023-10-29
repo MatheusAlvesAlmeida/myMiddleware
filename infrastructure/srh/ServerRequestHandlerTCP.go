@@ -2,7 +2,6 @@ package srh
 
 import (
 	"fmt"
-	"io"
 	"net"
 )
 
@@ -50,10 +49,6 @@ func (srh *ServerRequestHandlerTCP) ReceiveMessage() ([]byte, error) {
 	n, err := conn.Read(buffer)
 
 	if err != nil {
-		if err == io.EOF {
-			fmt.Println("Client disconnected")
-			return nil, err
-		}
 		return nil, err
 	}
 

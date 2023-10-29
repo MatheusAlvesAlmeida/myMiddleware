@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/MatheusAlvesAlmeida/myMiddleware/infrastructure/srh"
@@ -19,7 +20,11 @@ func main() {
 		response, err := server.ReceiveMessage()
 
 		if err != nil {
-			fmt.Printf("Error receiving TCP message: %v\n", err)
+			if err == io.EOF {
+				fmt.Println("Client disconnected")
+			} else {
+				fmt.Printf("Error receiving TCP message: %v\n", err)
+			}
 			break
 		}
 
