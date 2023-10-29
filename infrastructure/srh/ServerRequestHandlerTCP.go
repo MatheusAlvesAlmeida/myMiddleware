@@ -2,6 +2,7 @@ package srh
 
 import (
 	"fmt"
+	"io"
 	"net"
 )
 
@@ -21,26 +22,38 @@ func (srh *ServerRequestHandlerTCP) Server(ServerHost, ServerPort string) *Serve
 }
 
 func (srh *ServerRequestHandlerTCP) ReceiveMessage() ([]byte, error) {
-	listenAddr := srh.ServerHost + ":" + srh.ServerPort
-	listener, err := net.Listen("tcp", listenAddr)
+	var conn net.Conn
+	if srh.Conn == nil {
+		listenAddr := srh.ServerHost + ":" + srh.ServerPort
+		listener, err := net.Listen("tcp", listenAddr)
 
-	if err != nil {
-		return nil, err
-	}
-	defer listener.Close()
+		if err != nil {
+			return nil, err
+		}
+		defer listener.Close()
 
-	conn, err := listener.Accept()
+		conn, err = listener.Accept()
 
-	if err != nil {
-		return nil, err
+		fmt.Printf("Debug info - Received TCP connection from %s\n", conn.RemoteAddr().String())
+
+		if err != nil {
+			return nil, err
+		} else {
+			srh.Conn = conn
+		}
 	} else {
-		srh.Conn = conn
+		conn = srh.Conn
+		fmt.Println("Debug info - Reusing TCP connection")
 	}
 
 	buffer := make([]byte, 1024)
 	n, err := conn.Read(buffer)
 
 	if err != nil {
+		if err == io.EOF {
+			fmt.Println("Client disconnected")
+			return nil, err
+		}
 		return nil, err
 	}
 
