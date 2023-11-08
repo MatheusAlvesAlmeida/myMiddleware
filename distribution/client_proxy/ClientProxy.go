@@ -6,12 +6,13 @@ import (
 )
 
 type PercentageProxy struct {
+	AOR  string
 	Host string
 	Port int
 }
 
-func NewPercentageProxy(host string, port int) PercentageProxy {
-	return PercentageProxy{host, port}
+func NewPercentageProxy(aor string) PercentageProxy {
+	return PercentageProxy{AOR: aor, Host: "localhost", Port: 8080}
 }
 
 func (proxy PercentageProxy) GetValueOf(percentage int, totalValue int) float64 {

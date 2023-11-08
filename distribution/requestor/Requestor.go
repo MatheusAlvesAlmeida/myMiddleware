@@ -20,8 +20,9 @@ func __mountRequestPacket(invoker shared.Invocation) miop.Packet {
 }
 
 func (Requestor) Invoke(invoker shared.Invocation) interface{} {
+	serverAddress := invoker.Host + ":" + shared.SERVER_PORT
 	marshaller := marshaller.Marshaller{}
-	clientRequestHandler := crh.ClientRequestHandlerTCP{}
+	clientRequestHandler := crh.ClientRequestHandlerTCP{ServerAddress: serverAddress}
 
 	miopPacketRequest := __mountRequestPacket(invoker)
 

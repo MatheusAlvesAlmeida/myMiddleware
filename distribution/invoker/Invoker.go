@@ -9,7 +9,7 @@ import (
 
 type Invoker struct{}
 
-func newInvoker() Invoker {
+func NewInvoker() Invoker {
 	return Invoker{}
 }
 

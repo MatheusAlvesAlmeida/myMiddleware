@@ -1,37 +1,22 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 
-	"github.com/MatheusAlvesAlmeida/myMiddleware/infrastructure/crh"
+	clientproxy "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/client_proxy"
 )
 
+const MyAOR = "localhost:8080"
+
 func main() {
+	proxy := clientproxy.NewPercentageProxy(MyAOR)
 
-	crh := crh.ClientRequestHandlerTCP{
-		ServerAddress: "localhost:8080",
-		Conn:          nil,
-	}
-	scanner := bufio.NewScanner(os.Stdin)
+	percentage := 20
+	totalValue := 1000
+	value := proxy.GetValueOf(percentage, totalValue)
+	fmt.Printf("Value of %d%% of %d is %.2f\n", percentage, totalValue, value)
 
-	for {
-		fmt.Print("Enter a message (type 'end' to quit): ")
-		scanner.Scan()
-		input := scanner.Text()
-
-		if input == "end" {
-			break
-		}
-
-		message := []byte(input)
-		response, err := crh.SendReceive(message)
-		if err != nil {
-			fmt.Printf("Error sending message: %s\n", err)
-			return
-		}
-		fmt.Printf("Response from server: %s\n", string(response))
-	}
-
+	partialValue := 300
+	percentageValue := proxy.GetPercentageOf(partialValue, totalValue)
+	fmt.Printf("%d is %.2f%% of %d\n", partialValue, percentageValue, totalValue)
 }
