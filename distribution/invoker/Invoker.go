@@ -28,13 +28,13 @@ func (Invoker) Invoke() {
 		switch operation {
 		case "GetValueOf":
 			params := miopPacketRequest.Body.ReqBody.Body
-			percentage := params[0].(int)
-			totalValue := params[1].(int)
+			percentage := int(params[0].(float64))
+			totalValue := int(params[1].(float64))
 			replyParams[0] = calculator.GetValueOf(percentage, totalValue)
 		case "GetPercentageOf":
 			params := miopPacketRequest.Body.ReqBody.Body
-			partialValue := params[0].(int)
-			totalValue := params[1].(int)
+			partialValue := int(params[0].(float64))
+			totalValue := int(params[1].(float64))
 			replyParams[0] = calculator.GetPercentageOf(partialValue, totalValue)
 		}
 
