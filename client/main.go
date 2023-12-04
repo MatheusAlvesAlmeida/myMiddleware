@@ -9,7 +9,7 @@ import (
 	clientproxy "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/client_proxy"
 )
 
-const MyAOR = "localhost:8080"
+const MyAOR = 0
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)

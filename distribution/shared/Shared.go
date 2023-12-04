@@ -1,6 +1,7 @@
 package shared
 
 const SERVER_PORT = "8080"
+const NAMING_PORT = 8081
 
 type Invocation struct {
 	Host    string

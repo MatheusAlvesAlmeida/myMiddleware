@@ -1,24 +1,37 @@
 package clientproxy
 
 import (
+	"reflect"
+
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/requestor"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/shared"
 )
 
 type PercentageProxy struct {
-	AOR       string
+	ID        int
 	Host      string
 	Port      int
+	TypeName  string
 	Requestor *requestor.Requestor // Add a field for the Requestor
 }
 
-func NewPercentageProxy(aor string) PercentageProxy {
+type ClientProxyPercentageCalculator struct {
+	Proxy PercentageProxy
+}
+
+func NewPercentageProxy(aor int) PercentageProxy {
 	return PercentageProxy{
-		AOR:       aor,
+		ID:        aor,
 		Host:      "localhost",
 		Port:      8080,
 		Requestor: &requestor.Requestor{},
 	}
+}
+
+func NewClientProxyPercentageCalculator(host string, port int, id int) ClientProxyPercentageCalculator {
+	typeName := reflect.TypeOf(ClientProxyPercentageCalculator{}).String()
+	return ClientProxyPercentageCalculator{
+		PercentageProxy{TypeName: typeName, Host: host, Port: port, ID: id}}
 }
 
 func (proxy PercentageProxy) GetValueOf(percentage int, totalValue int) float64 {
