@@ -7,7 +7,9 @@ import (
 	"github.com/MatheusAlvesAlmeida/myMiddleware/infrastructure/srh"
 )
 
-type Invoker struct{}
+type Invoker struct {
+	Port int
+}
 
 func NewInvoker() Invoker {
 	return Invoker{}

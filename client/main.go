@@ -7,13 +7,16 @@ import (
 	"strconv"
 
 	clientproxy "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/client_proxy"
+	"github.com/MatheusAlvesAlmeida/myMiddleware/services/naming_service/proxy"
 )
 
 const MyAOR = 0
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	proxy := clientproxy.NewPercentageProxy(MyAOR)
+	namingProxy := proxy.NamingProxy{}
+
+	proxy := namingProxy.Lookup("PercentageCalculator").(clientproxy.PercentageProxy)
 
 	for {
 		fmt.Println("Enter the operation you want to perform (type 'end' to quit): ")
