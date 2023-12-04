@@ -31,28 +31,40 @@ func (srh *ServerRequestHandlerTCP) ReceiveMessage() ([]byte, error) {
 		}
 		defer listener.Close()
 
-		conn, err = listener.Accept()
+		fmt.Println("Waiting for connections...")
 
-		fmt.Printf("Debug info - Received TCP connection from %s\n", conn.RemoteAddr().String())
+		for {
+			conn, err = listener.Accept()
 
-		if err != nil {
-			return nil, err
-		} else {
-			srh.Conn = conn
+			fmt.Printf("Received connection from %s\n", conn.RemoteAddr().String())
+
+			if err != nil {
+				fmt.Printf("Error accepting connection: %s\n", err)
+				continue
+			} else {
+				srh.Conn = conn
+				break
+			}
 		}
 	} else {
 		conn = srh.Conn
-		fmt.Println("Debug info - Reusing TCP connection")
+		fmt.Println("Waiting for messages...")
 	}
 
 	buffer := make([]byte, 1024)
-	n, err := conn.Read(buffer)
+	for {
+		n, err := conn.Read(buffer)
 
-	if err != nil {
-		return nil, err
+		if err != nil {
+			fmt.Printf("Connection Lost! Log error: %s\n", err)
+			srh.Conn = nil
+			return nil, err
+		}
+
+		if n > 0 {
+			return buffer[:n], nil
+		}
 	}
-
-	return buffer[:n], nil
 }
 
 func (srh *ServerRequestHandlerTCP) SendMessage(message []byte) {

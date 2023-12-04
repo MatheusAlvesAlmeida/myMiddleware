@@ -7,7 +7,9 @@ import (
 	"github.com/MatheusAlvesAlmeida/myMiddleware/infrastructure/crh"
 )
 
-type Requestor struct{}
+type Requestor struct {
+	ClientRequestHandler *crh.ClientRequestHandlerTCP
+}
 
 func __mountRequestPacket(invoker shared.Invocation) miop.Packet {
 	reqHeader := miop.RequestHeader{Context: "Context", RequestId: 1000, ResponseExpected: true, ObjectKey: 2000, Operation: invoker.Request.Op}
@@ -19,16 +21,17 @@ func __mountRequestPacket(invoker shared.Invocation) miop.Packet {
 	return miopPacketRequest
 }
 
-func (Requestor) Invoke(invoker shared.Invocation) interface{} {
-	serverAddress := invoker.Host + ":" + shared.SERVER_PORT
+func (r *Requestor) Invoke(invoker shared.Invocation) interface{} {
+	if r.ClientRequestHandler == nil {
+		serverAddress := invoker.Host + ":" + shared.SERVER_PORT
+		r.ClientRequestHandler = &crh.ClientRequestHandlerTCP{ServerAddress: serverAddress}
+	}
+
 	marshaller := marshaller.Marshaller{}
-	clientRequestHandler := crh.ClientRequestHandlerTCP{ServerAddress: serverAddress}
-
 	miopPacketRequest := __mountRequestPacket(invoker)
-
 	msgToClientBytes := marshaller.Marshall(miopPacketRequest)
 
-	msgFromServerBytes, err := clientRequestHandler.SendReceive(msgToClientBytes)
+	msgFromServerBytes, err := r.ClientRequestHandler.SendReceive(msgToClientBytes)
 	if err != nil {
 		panic(err)
 	}

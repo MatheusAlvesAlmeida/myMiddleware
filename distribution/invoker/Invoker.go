@@ -20,7 +20,10 @@ func (Invoker) Invoke() {
 	calculator := NewPercentageCalculatorInvoker()
 
 	for {
-		messageReceived, _ := srh.ReceiveMessage()
+		messageReceived, err := srh.ReceiveMessage()
+		if err != nil {
+			continue
+		}
 
 		miopPacketRequest := marshaller.Unmarshall(messageReceived)
 		operation := miopPacketRequest.Body.ReqHeader.Operation
