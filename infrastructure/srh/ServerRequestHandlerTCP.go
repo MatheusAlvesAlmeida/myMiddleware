@@ -77,3 +77,9 @@ func (srh *ServerRequestHandlerTCP) SendMessage(message []byte) {
 		fmt.Printf("Error sending response: %s\n", err)
 	}
 }
+
+func (srh *ServerRequestHandlerTCP) Close() {
+	if srh.Conn != nil {
+		srh.Conn.Close()
+	}
+}

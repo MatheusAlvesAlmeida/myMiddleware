@@ -1,6 +1,9 @@
 package requestor
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/marshaller"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/miop"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/shared"
@@ -9,6 +12,10 @@ import (
 
 type Requestor struct {
 	ClientRequestHandler *crh.ClientRequestHandlerTCP
+}
+
+func NewRequestor() Requestor {
+	return Requestor{ClientRequestHandler: nil}
 }
 
 func __mountRequestPacket(invoker shared.Invocation) miop.Packet {
@@ -21,9 +28,10 @@ func __mountRequestPacket(invoker shared.Invocation) miop.Packet {
 	return miopPacketRequest
 }
 
-func (r *Requestor) Invoke(invoker shared.Invocation) interface{} {
+func (r Requestor) Invoke(invoker shared.Invocation) interface{} {
 	if r.ClientRequestHandler == nil {
-		serverAddress := invoker.Host + ":" + shared.SERVER_PORT
+		serverAddress := invoker.Host + ":" + strconv.Itoa(invoker.Port)
+		fmt.Println("Debug info - Server address: ", serverAddress)
 		r.ClientRequestHandler = &crh.ClientRequestHandlerTCP{ServerAddress: serverAddress}
 	}
 

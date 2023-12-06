@@ -1,6 +1,8 @@
 package invoker
 
 import (
+	"strconv"
+
 	clientproxy "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/client_proxy"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/marshaller"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/miop"
@@ -13,7 +15,7 @@ import (
 type NamingInvoker struct{}
 
 func (NamingInvoker) Invoke() {
-	srh := srh.ServerRequestHandlerTCP{ServerHost: "localhost", ServerPort: string(rune(shared.NAMING_PORT))}
+	srh := srh.ServerRequestHandlerTCP{ServerHost: "localhost", ServerPort: strconv.Itoa(shared.NAMING_PORT)}
 	marshaller := marshaller.Marshaller{}
 	namingService := naming.NamingService{}
 	miopPacketReply := miop.Packet{}
@@ -40,7 +42,7 @@ func (NamingInvoker) Invoke() {
 				Host:      proxyTemp["Host"].(string),
 				Port:      int(proxyTemp["Port"].(float64)),
 				TypeName:  proxyTemp["TypeName"].(string),
-				Requestor: &requestor.Requestor{},
+				Requestor: requestor.NewRequestor(),
 			}
 
 			responseParams[0] = namingService.Register(name, p2)
@@ -63,5 +65,6 @@ func (NamingInvoker) Invoke() {
 		marshalledReply := marshaller.Marshall(miopPacketReply)
 
 		srh.SendMessage(marshalledReply)
+		//srh.Close()
 	}
 }

@@ -14,12 +14,12 @@ func main() {
 	namingProxy := proxy.NamingProxy{}
 
 	port := shared.FindNextAvailablePort()
+	fmt.Println("Debug info - Port: ", port)
 
-	clientProxyPercentageCalculator := clientproxy.NewClientProxyPercentageCalculator("localhost", port, 1)
+	clientProxyPercentageCalculator := clientproxy.NewPercentageProxyCalculator("localhost", port, 1)
 
 	namingProxy.Register("PercentageCalculator", clientProxyPercentageCalculator)
 
-	invoker := invoker.Invoker{Port: port}
-
-	invoker.Invoke()
+	myInvoker := invoker.Invoker{Port: port}
+	myInvoker.Invoke()
 }

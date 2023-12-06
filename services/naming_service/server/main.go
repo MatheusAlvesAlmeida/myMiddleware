@@ -8,9 +8,8 @@ import (
 
 func main() {
 
-	fmt.Println("Naming servidor running!!")
+	fmt.Println("Naming service is running!")
 
-	// control loop passed to invoker
 	namingInvoker := invoker.NamingInvoker{}
 	namingInvoker.Invoke()
 }

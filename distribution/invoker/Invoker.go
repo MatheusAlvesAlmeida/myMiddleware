@@ -1,9 +1,11 @@
 package invoker
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/marshaller"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/miop"
-	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/shared"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/infrastructure/srh"
 )
 
@@ -11,12 +13,13 @@ type Invoker struct {
 	Port int
 }
 
-func NewInvoker() Invoker {
-	return Invoker{}
+func NewInvoker(port int) Invoker {
+	return Invoker{Port: port}
 }
 
-func (Invoker) Invoke() {
-	srh := srh.ServerRequestHandlerTCP{ServerHost: "localhost", ServerPort: shared.SERVER_PORT}
+func (i Invoker) Invoke() {
+	fmt.Println("Debug info Caculator Invoker - Port: ", i.Port)
+	srh := srh.ServerRequestHandlerTCP{ServerHost: "localhost", ServerPort: strconv.Itoa(i.Port)}
 	marshaller := marshaller.Marshaller{}
 	replyParams := make([]interface{}, 1)
 	calculator := NewPercentageCalculatorInvoker()
@@ -54,5 +57,4 @@ func (Invoker) Invoke() {
 
 		srh.SendMessage(marshalledReply)
 	}
-
 }

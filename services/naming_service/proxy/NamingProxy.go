@@ -1,6 +1,8 @@
 package proxy
 
 import (
+	"fmt"
+
 	clientproxy "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/client_proxy"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/requestor"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/shared"
@@ -14,25 +16,23 @@ func (NamingProxy) Register(name string, proxy interface{}) bool {
 	params[0] = name
 	params[1] = proxy
 
-	namingProxy := clientproxy.PercentageProxy{ID: 0, Host: "", Port: shared.NAMING_PORT, TypeName: "NamingProxy"}
+	namingProxy := clientproxy.PercentageProxy{ID: 0, Host: "", Port: shared.NAMING_PORT}
 	request := shared.Request{Op: "Register", Params: params}
 	inv := shared.Invocation{Host: namingProxy.Host, Port: namingProxy.Port, Request: request}
 
 	requestor := requestor.Requestor{}
-	invoker := requestor.Invoke(inv)
+	fmt.Println("Debug info - Invoking NamingService.Register")
+	fmt.Println("Registering: ", proxy)
+	invoker := requestor.Invoke(inv).([]interface{})
 
-	response, _ := invoker.([]interface{})
-
-	result, _ := response[0].(bool)
-
-	return result
+	return invoker[0].(bool)
 }
 
 func (NamingProxy) Lookup(name string) interface{} {
 	params := make([]interface{}, 1)
 	params[0] = name
 
-	namingProxy := clientproxy.PercentageProxy{ID: 0, Host: "", Port: shared.NAMING_PORT, TypeName: "NamingProxy"}
+	namingProxy := clientproxy.PercentageProxy{ID: 0, Host: "", Port: shared.NAMING_PORT}
 	request := shared.Request{Op: "Lookup", Params: params}
 	inv := shared.Invocation{Host: namingProxy.Host, Port: namingProxy.Port, Request: request}
 

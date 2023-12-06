@@ -16,7 +16,7 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	namingProxy := proxy.NamingProxy{}
 
-	proxy := namingProxy.Lookup("PercentageCalculator").(clientproxy.PercentageProxy)
+	proxy := namingProxy.Lookup("PercentageCalculator").(clientproxy.ClientProxyPercentageCalculator)
 
 	for {
 		fmt.Println("Enter the operation you want to perform (type 'end' to quit): ")
