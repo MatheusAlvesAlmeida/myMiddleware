@@ -15,10 +15,11 @@ const MyAOR = 0
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	namingProxy := proxy.NamingProxy{}
-
 	proxy := namingProxy.Lookup("PercentageCalculator").(clientproxy.ClientProxyPercentageCalculator)
 
+	fmt.Println("Client running! Proxy: ", proxy)
 	for {
+
 		fmt.Println("Enter the operation you want to perform (type 'end' to quit): ")
 		scanner.Scan()
 		input := scanner.Text()
@@ -51,5 +52,7 @@ func main() {
 		default:
 			fmt.Println("Invalid operation")
 		}
+		fmt.Println("------------------------------------------------------")
+		fmt.Println("Proxy: ", proxy)
 	}
 }

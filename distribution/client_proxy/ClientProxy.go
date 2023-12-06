@@ -12,7 +12,7 @@ type PercentageProxy struct {
 	Host      string
 	Port      int
 	TypeName  string
-	Requestor requestor.Requestor
+	Requestor *requestor.Requestor
 }
 
 type ClientProxyPercentageCalculator struct {
@@ -24,14 +24,14 @@ func NewPercentageProxy(host string, port int, id int) PercentageProxy {
 		ID:        id,
 		Host:      host,
 		Port:      port,
-		Requestor: requestor.NewRequestor(),
+		Requestor: &requestor.Requestor{},
 	}
 }
 
 func NewPercentageProxyCalculator(host string, port int, id int) ClientProxyPercentageCalculator {
 	typeName := reflect.TypeOf(ClientProxyPercentageCalculator{}).String()
 	return ClientProxyPercentageCalculator{
-		PercentageProxy{TypeName: typeName, Host: host, Port: port, ID: id},
+		PercentageProxy{TypeName: typeName, Host: host, Port: port, ID: id, Requestor: &requestor.Requestor{}},
 	}
 }
 

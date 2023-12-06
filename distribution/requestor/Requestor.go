@@ -28,7 +28,7 @@ func __mountRequestPacket(invoker shared.Invocation) miop.Packet {
 	return miopPacketRequest
 }
 
-func (r Requestor) Invoke(invoker shared.Invocation) interface{} {
+func (r *Requestor) Invoke(invoker shared.Invocation) interface{} {
 	if r.ClientRequestHandler == nil {
 		serverAddress := invoker.Host + ":" + strconv.Itoa(invoker.Port)
 		fmt.Println("Debug info - Server address: ", serverAddress)

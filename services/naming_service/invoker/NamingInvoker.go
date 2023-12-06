@@ -42,7 +42,7 @@ func (NamingInvoker) Invoke() {
 				Host:      proxyTemp["Host"].(string),
 				Port:      int(proxyTemp["Port"].(float64)),
 				TypeName:  proxyTemp["TypeName"].(string),
-				Requestor: requestor.NewRequestor(),
+				Requestor: &requestor.Requestor{},
 			}
 
 			responseParams[0] = namingService.Register(name, p2)
@@ -65,6 +65,6 @@ func (NamingInvoker) Invoke() {
 		marshalledReply := marshaller.Marshall(miopPacketReply)
 
 		srh.SendMessage(marshalledReply)
-		//srh.Close()
+		srh.Close()
 	}
 }
