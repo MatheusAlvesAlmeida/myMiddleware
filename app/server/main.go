@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	clientproxy "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/client_proxy"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/invoker"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/shared"
@@ -10,7 +8,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Server running!")
 	namingProxy := proxy.NamingProxy{}
 
 	port := shared.FindNextAvailablePort()

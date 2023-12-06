@@ -31,6 +31,8 @@ func (srh *ServerRequestHandlerTCP) ReceiveMessage() ([]byte, error) {
 		}
 		defer listener.Close()
 
+		fmt.Println("------------------------------------------------------")
+		fmt.Printf("Server running on %s\n", listenAddr)
 		fmt.Println("Waiting for connections...")
 
 		for {
@@ -49,7 +51,6 @@ func (srh *ServerRequestHandlerTCP) ReceiveMessage() ([]byte, error) {
 	} else {
 		conn = srh.Conn
 		fmt.Println("------------------------------------------------------")
-		fmt.Printf("Connection already established with %s\n", conn.RemoteAddr().String())
 		fmt.Println("Waiting for messages...")
 	}
 
@@ -78,10 +79,12 @@ func (srh *ServerRequestHandlerTCP) SendMessage(message []byte) {
 	if err != nil {
 		fmt.Printf("Error sending response: %s\n", err)
 	}
+	fmt.Println("Response sent in connection: ", srh.Conn.RemoteAddr().String())
 }
 
 func (srh *ServerRequestHandlerTCP) Close() {
 	if srh.Conn != nil {
 		srh.Conn.Close()
+		srh.Conn = nil
 	}
 }

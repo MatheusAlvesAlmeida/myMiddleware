@@ -17,7 +17,7 @@ func main() {
 	namingProxy := proxy.NamingProxy{}
 	proxy := namingProxy.Lookup("PercentageCalculator").(clientproxy.ClientProxyPercentageCalculator)
 
-	fmt.Println("Client running! Proxy: ", proxy)
+	fmt.Println("Client running!")
 	for {
 
 		fmt.Println("Enter the operation you want to perform (type 'end' to quit): ")
@@ -52,7 +52,6 @@ func main() {
 		default:
 			fmt.Println("Invalid operation")
 		}
-		fmt.Println("------------------------------------------------------")
-		fmt.Println("Proxy: ", proxy)
+		fmt.Printf("\n\n------------------------------------------------------\n")
 	}
 }
