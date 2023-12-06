@@ -48,6 +48,8 @@ func (srh *ServerRequestHandlerTCP) ReceiveMessage() ([]byte, error) {
 		}
 	} else {
 		conn = srh.Conn
+		fmt.Println("------------------------------------------------------")
+		fmt.Printf("Connection already established with %s\n", conn.RemoteAddr().String())
 		fmt.Println("Waiting for messages...")
 	}
 

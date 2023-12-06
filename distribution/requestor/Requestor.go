@@ -1,7 +1,6 @@
 package requestor
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/marshaller"
@@ -31,7 +30,6 @@ func __mountRequestPacket(invoker shared.Invocation) miop.Packet {
 func (r *Requestor) Invoke(invoker shared.Invocation) interface{} {
 	if r.ClientRequestHandler == nil {
 		serverAddress := invoker.Host + ":" + strconv.Itoa(invoker.Port)
-		fmt.Println("Debug info - Server address: ", serverAddress)
 		r.ClientRequestHandler = &crh.ClientRequestHandlerTCP{ServerAddress: serverAddress}
 	}
 

@@ -14,7 +14,6 @@ func main() {
 	namingProxy := proxy.NamingProxy{}
 
 	port := shared.FindNextAvailablePort()
-	fmt.Println("Debug info - Port: ", port)
 
 	clientProxyPercentageCalculator := clientproxy.NewPercentageProxyCalculator("localhost", port, 1)
 

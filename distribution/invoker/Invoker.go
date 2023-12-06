@@ -1,7 +1,6 @@
 package invoker
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/marshaller"
@@ -18,7 +17,6 @@ func NewInvoker(port int) Invoker {
 }
 
 func (i Invoker) Invoke() {
-	fmt.Println("Debug info Caculator Invoker - Port: ", i.Port)
 	srh := srh.ServerRequestHandlerTCP{ServerHost: "localhost", ServerPort: strconv.Itoa(i.Port)}
 	marshaller := marshaller.Marshaller{}
 	replyParams := make([]interface{}, 1)

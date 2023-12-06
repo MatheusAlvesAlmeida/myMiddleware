@@ -1,8 +1,6 @@
 package proxy
 
 import (
-	"fmt"
-
 	clientproxy "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/client_proxy"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/requestor"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/shared"
@@ -21,8 +19,6 @@ func (NamingProxy) Register(name string, proxy interface{}) bool {
 	inv := shared.Invocation{Host: namingProxy.Host, Port: namingProxy.Port, Request: request}
 
 	requestor := requestor.Requestor{}
-	fmt.Println("Debug info - Invoking NamingService.Register")
-	fmt.Println("Registering: ", proxy)
 	invoker := requestor.Invoke(inv).([]interface{})
 
 	return invoker[0].(bool)

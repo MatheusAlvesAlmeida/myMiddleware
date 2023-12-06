@@ -1,6 +1,8 @@
 package naming
 
 import (
+	"fmt"
+
 	clientproxy "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/client_proxy"
 )
 
@@ -9,6 +11,7 @@ type NamingService struct {
 }
 
 func (namingService *NamingService) Register(name string, proxy clientproxy.PercentageProxy) bool {
+	fmt.Println("Registering ", name, " with proxy ", proxy)
 	response := false
 
 	if namingService.Repository == nil {

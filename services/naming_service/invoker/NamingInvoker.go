@@ -1,6 +1,7 @@
 package invoker
 
 import (
+	"fmt"
 	"strconv"
 
 	clientproxy "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/client_proxy"
@@ -46,6 +47,7 @@ func (NamingInvoker) Invoke() {
 			}
 
 			responseParams[0] = namingService.Register(name, p2)
+			fmt.Println("Registered ", name, " with proxy ", p2)
 
 		case "Lookup":
 			params := miopPacketRequest.Body.ReqBody.Body
