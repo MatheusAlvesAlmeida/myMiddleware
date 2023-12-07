@@ -3,6 +3,7 @@ package requestor
 import (
 	"strconv"
 
+	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/interceptor"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/marshaller"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/miop"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/shared"
@@ -28,6 +29,8 @@ func __mountRequestPacket(invoker shared.Invocation) miop.Packet {
 }
 
 func (r *Requestor) Invoke(invoker shared.Invocation) interface{} {
+	interceptor := interceptor.NewInvocationInterceptor()
+
 	if r.ClientRequestHandler == nil {
 		serverAddress := invoker.Host + ":" + strconv.Itoa(invoker.Port)
 		r.ClientRequestHandler = &crh.ClientRequestHandlerTCP{ServerAddress: serverAddress}
@@ -35,6 +38,8 @@ func (r *Requestor) Invoke(invoker shared.Invocation) interface{} {
 
 	marshaller := marshaller.Marshaller{}
 	miopPacketRequest := __mountRequestPacket(invoker)
+	interceptor.Intercept(miopPacketRequest, true)
+
 	msgToClientBytes := marshaller.Marshall(miopPacketRequest)
 
 	msgFromServerBytes, err := r.ClientRequestHandler.SendReceive(msgToClientBytes)
@@ -42,6 +47,7 @@ func (r *Requestor) Invoke(invoker shared.Invocation) interface{} {
 		panic(err)
 	}
 	miopPacketReply := marshaller.Unmarshall(msgFromServerBytes)
+	interceptor.Intercept(miopPacketReply, false)
 
 	response := miopPacketReply.Body.RepBody.OperationResult
 
