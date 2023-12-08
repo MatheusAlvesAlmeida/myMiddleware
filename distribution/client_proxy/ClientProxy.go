@@ -1,6 +1,7 @@
 package clientproxy
 
 import (
+	"errors"
 	"reflect"
 
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/requestor"
@@ -35,7 +36,7 @@ func NewPercentageProxyCalculator(host string, port int, id int) ClientProxyPerc
 	}
 }
 
-func (proxy ClientProxyPercentageCalculator) GetValueOf(percentage int, totalValue int) float64 {
+func (proxy ClientProxyPercentageCalculator) GetValueOf(percentage int, totalValue int) (float64, error) {
 	params := make([]interface{}, 2)
 	params[0] = percentage
 	params[1] = totalValue
@@ -43,12 +44,21 @@ func (proxy ClientProxyPercentageCalculator) GetValueOf(percentage int, totalVal
 	request := shared.Request{Op: "GetValueOf", Params: params}
 	invoker := shared.Invocation{Host: proxy.Proxy.Host, Port: proxy.Proxy.Port, Request: request}
 
-	response := proxy.Proxy.Requestor.Invoke(invoker).([]interface{})
+	response := proxy.Proxy.Requestor.Invoke(invoker)
+	resp, ok := response.([]interface{})
+	if !ok {
+		return 0, errors.New("invalid response received")
+	}
 
-	return response[0].(float64)
+	value, ok := resp[0].(float64)
+	if !ok {
+		return 0, errors.New("invalid response format received")
+	}
+
+	return value, nil
 }
 
-func (proxy ClientProxyPercentageCalculator) GetPercentageOf(partialValue int, totalValue int) float64 {
+func (proxy ClientProxyPercentageCalculator) GetPercentageOf(partialValue int, totalValue int) (float64, error) {
 	params := make([]interface{}, 2)
 	params[0] = partialValue
 	params[1] = totalValue
@@ -56,7 +66,16 @@ func (proxy ClientProxyPercentageCalculator) GetPercentageOf(partialValue int, t
 	request := shared.Request{Op: "GetPercentageOf", Params: params}
 	invoker := shared.Invocation{Host: proxy.Proxy.Host, Port: proxy.Proxy.Port, Request: request}
 
-	response := proxy.Proxy.Requestor.Invoke(invoker).([]interface{})
+	response := proxy.Proxy.Requestor.Invoke(invoker)
+	resp, ok := response.([]interface{})
+	if !ok {
+		return 0, errors.New("invalid response received")
+	}
 
-	return response[0].(float64)
+	value, ok := resp[0].(float64)
+	if !ok {
+		return 0, errors.New("invalid response format received")
+	}
+
+	return value, nil
 }

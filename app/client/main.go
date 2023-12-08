@@ -19,7 +19,6 @@ func main() {
 
 	fmt.Println("Client running!")
 	for {
-
 		fmt.Println("Enter the operation you want to perform (type 'end' to quit): ")
 		scanner.Scan()
 		input := scanner.Text()
@@ -32,10 +31,25 @@ func main() {
 			scanner.Scan()
 			totalValue := scanner.Text()
 
-			percentageInt, _ := strconv.Atoi(percentage)
-			totalValueInt, _ := strconv.Atoi(totalValue)
+			percentageInt, err := strconv.Atoi(percentage)
+			if err != nil {
+				fmt.Println("Invalid percentage input:", err)
+				continue
+			}
 
-			fmt.Println("Response from server: ", proxy.GetValueOf(percentageInt, totalValueInt))
+			totalValueInt, err := strconv.Atoi(totalValue)
+			if err != nil {
+				fmt.Println("Invalid total value input:", err)
+				continue
+			}
+
+			value, err := proxy.GetValueOf(percentageInt, totalValueInt)
+			if err != nil {
+				fmt.Println("Error getting value from server:", err)
+				continue
+			}
+
+			fmt.Println("Response from server: ", value)
 		case "GetPercentageOf":
 			fmt.Println("Enter the partial value and the total value: ")
 			scanner.Scan()
@@ -43,10 +57,25 @@ func main() {
 			scanner.Scan()
 			totalValue := scanner.Text()
 
-			partialValueInt, _ := strconv.Atoi(partialValue)
-			totalValueInt, _ := strconv.Atoi(totalValue)
+			partialValueInt, err := strconv.Atoi(partialValue)
+			if err != nil {
+				fmt.Println("Invalid partial value input:", err)
+				continue
+			}
 
-			fmt.Println("Response from server: ", proxy.GetPercentageOf(partialValueInt, totalValueInt))
+			totalValueInt, err := strconv.Atoi(totalValue)
+			if err != nil {
+				fmt.Println("Invalid total value input:", err)
+				continue
+			}
+
+			value, err := proxy.GetPercentageOf(partialValueInt, totalValueInt)
+			if err != nil {
+				fmt.Println("Error getting percentage from server:", err)
+				continue
+			}
+
+			fmt.Println("Response from server: ", value)
 		case "end":
 			os.Exit(0)
 		default:

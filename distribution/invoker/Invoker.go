@@ -31,20 +31,43 @@ func (i Invoker) Invoke() {
 		miopPacketRequest := marshaller.Unmarshall(messageReceived)
 		operation := miopPacketRequest.Body.ReqHeader.Operation
 
+		var status int
 		switch operation {
 		case "GetValueOf":
 			params := miopPacketRequest.Body.ReqBody.Body
+			if len(params) != 2 {
+				status = 101 // Logical error: Invalid number of parameters
+				break
+			}
 			percentage := int(params[0].(float64))
 			totalValue := int(params[1].(float64))
-			replyParams[0] = calculator.GetValueOf(percentage, totalValue)
+			result, err := calculator.GetValueOf(percentage, totalValue)
+			if err != nil {
+				status = 101 // Logical error: Other calculation error
+				break
+			}
+			replyParams[0] = result
+			status = 100 // Success
 		case "GetPercentageOf":
 			params := miopPacketRequest.Body.ReqBody.Body
+			if len(params) != 2 {
+				status = 101 // Logical error: Invalid number of parameters
+				break
+			}
 			partialValue := int(params[0].(float64))
 			totalValue := int(params[1].(float64))
-			replyParams[0] = calculator.GetPercentageOf(partialValue, totalValue)
+			result, err := calculator.GetPercentageOf(partialValue, totalValue)
+			if err != nil {
+				status = 101 // Logical error: Other calculation error
+				break
+			}
+			replyParams[0] = result
+			status = 100 // Success
+		default:
+			status = 101 // Logical error: Unsupported operation
 		}
 
-		repHeader := miop.ReplyHeader{Context: "context", RequestId: miopPacketRequest.Body.ReqHeader.RequestId, Status: 1}
+		repHeader := miop.ReplyHeader{Context: "context", RequestId: miopPacketRequest.Body.ReqHeader.RequestId, Status: status}
 		repBody := miop.ReplyBody{OperationResult: replyParams}
 
 		header := miop.Header{Magic: "MIOP", Version: "1.0", ByteOrder: true, MessageType: 2, Size: 0}
