@@ -16,7 +16,7 @@ func (NamingProxy) Register(name string, proxy interface{}) bool {
 
 	namingProxy := clientproxy.PercentageProxy{ID: 0, Host: "", Port: shared.NAMING_PORT}
 	request := shared.Request{Op: "Register", Params: params}
-	inv := shared.Invocation{Host: namingProxy.Host, Port: namingProxy.Port, Request: request}
+	inv := shared.Invocation{Host: namingProxy.Host, Port: namingProxy.Port, Request: request, Context: "NamingOperation"}
 
 	requestor := requestor.Requestor{}
 	invoker := requestor.Invoke(inv).([]interface{})
@@ -30,7 +30,7 @@ func (NamingProxy) Lookup(name string) interface{} {
 
 	namingProxy := clientproxy.PercentageProxy{ID: 0, Host: "", Port: shared.NAMING_PORT}
 	request := shared.Request{Op: "Lookup", Params: params}
-	inv := shared.Invocation{Host: namingProxy.Host, Port: namingProxy.Port, Request: request}
+	inv := shared.Invocation{Host: namingProxy.Host, Port: namingProxy.Port, Request: request, Context: "NamingOperation"}
 
 	requestor := requestor.Requestor{}
 	invoker := requestor.Invoke(inv)

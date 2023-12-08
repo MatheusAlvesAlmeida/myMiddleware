@@ -2,6 +2,8 @@ package interceptor
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 	"unsafe"
 
@@ -9,17 +11,46 @@ import (
 )
 
 type InvocationInterceptor struct {
-	requestTime time.Time
+	requestTime    time.Time
+	requestContext string
 }
+
+const timestampFormat = "2006-01-02 15:04:05"
 
 func NewInvocationInterceptor() InvocationInterceptor {
 	return InvocationInterceptor{}
 }
 
 func (i *InvocationInterceptor) Intercept(invocation miop.Packet, isRequest bool) {
+	context := invocation.Body.ReqHeader.Context
+	// If context is not PercentageOperation, do not log
+	if context == "NamingOperation" {
+		return
+	}
+	filename := "logs.txt"
+	absPath, err := filepath.Abs(filename)
+	if err != nil {
+		return
+	}
+
+	// Check if the file exists, create it if not
+	if _, err := os.Stat(absPath); os.IsNotExist(err) {
+		if _, err := os.Create(absPath); err != nil {
+			return
+		}
+	}
+
+	file, err := os.OpenFile(absPath, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	var line string
+
 	if isRequest {
 		i.requestTime = time.Now()
-		fmt.Println("Intercepting request")
+		i.requestContext = context
+		return
 	} else {
 		elapsedTime := time.Since(i.requestTime)
 
@@ -33,13 +64,11 @@ func (i *InvocationInterceptor) Intercept(invocation miop.Packet, isRequest bool
 		// Get response code/status
 		responseStatus := invocation.Body.RepHeader.Status
 
-		// Print or log the elapsed time and other metrics
-		fmt.Printf("Elapsed Time: %v\n", elapsedTime)
-		fmt.Printf("Header Size: %d bytes\n", headerSize)
-		fmt.Printf("Request Header Size: %d bytes\n", reqHeaderSize)
-		fmt.Printf("Request Body Size: %d bytes\n", reqBodySize)
-		fmt.Printf("Reply Header Size: %d bytes\n", repHeaderSize)
-		fmt.Printf("Reply Body Size: %d bytes\n", repBodySize)
-		fmt.Printf("Response Status: %d\n", responseStatus)
+		line = fmt.Sprintf("%v,%s,%v,%d,%d,%d,%d,%d,%d\n", i.requestTime.Format(timestampFormat), i.requestContext, elapsedTime, headerSize, reqHeaderSize, reqBodySize, repHeaderSize, repBodySize, responseStatus)
+	}
+
+	_, err = file.WriteString(line)
+	if err != nil {
+		return
 	}
 }

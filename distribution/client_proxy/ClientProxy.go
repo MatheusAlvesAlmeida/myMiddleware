@@ -42,7 +42,7 @@ func (proxy ClientProxyPercentageCalculator) GetValueOf(percentage int, totalVal
 	params[1] = totalValue
 
 	request := shared.Request{Op: "GetValueOf", Params: params}
-	invoker := shared.Invocation{Host: proxy.Proxy.Host, Port: proxy.Proxy.Port, Request: request}
+	invoker := shared.Invocation{Host: proxy.Proxy.Host, Port: proxy.Proxy.Port, Request: request, Context: "GetValueOf"}
 
 	response := proxy.Proxy.Requestor.Invoke(invoker)
 	resp, ok := response.([]interface{})
@@ -64,7 +64,7 @@ func (proxy ClientProxyPercentageCalculator) GetPercentageOf(partialValue int, t
 	params[1] = totalValue
 
 	request := shared.Request{Op: "GetPercentageOf", Params: params}
-	invoker := shared.Invocation{Host: proxy.Proxy.Host, Port: proxy.Proxy.Port, Request: request}
+	invoker := shared.Invocation{Host: proxy.Proxy.Host, Port: proxy.Proxy.Port, Request: request, Context: "GetPercentageOf"}
 
 	response := proxy.Proxy.Requestor.Invoke(invoker)
 	resp, ok := response.([]interface{})

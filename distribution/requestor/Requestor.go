@@ -19,7 +19,7 @@ func NewRequestor() Requestor {
 }
 
 func __mountRequestPacket(invoker shared.Invocation) miop.Packet {
-	reqHeader := miop.RequestHeader{Context: "Context", RequestId: 1000, ResponseExpected: true, ObjectKey: 2000, Operation: invoker.Request.Op}
+	reqHeader := miop.RequestHeader{Context: invoker.Context, RequestId: 1000, ResponseExpected: true, ObjectKey: 2000, Operation: invoker.Request.Op}
 	reqBody := miop.RequestBody{Body: invoker.Request.Params}
 	header := miop.Header{Magic: "MIOP", Version: "1.0", ByteOrder: true, MessageType: 1, Size: 1024}
 	body := miop.Body{ReqHeader: reqHeader, ReqBody: reqBody}
