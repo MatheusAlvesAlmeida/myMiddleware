@@ -5,19 +5,19 @@ import (
 	"net"
 	"time"
 
-	errorhandler "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/error_handler" // Import the error handler package
+	errorhandler "github.com/MatheusAlvesAlmeida/myMiddleware/distribution/error_handler"
 )
 
 type ClientRequestHandlerTCP struct {
 	ServerAddress string
 	Conn          net.Conn
-	ErrorHandler  errorhandler.ErrorHandler // Include the error handler
+	ErrorHandler  errorhandler.ErrorHandler
 }
 
 func NewClientRequestHandlerTCP(serverAddress string) *ClientRequestHandlerTCP {
 	return &ClientRequestHandlerTCP{
 		ServerAddress: serverAddress,
-		ErrorHandler:  errorhandler.ErrorHandler{}, // Instantiate the error handler
+		ErrorHandler:  errorhandler.ErrorHandler{},
 	}
 }
 
@@ -55,7 +55,7 @@ func (crh *ClientRequestHandlerTCP) SendReceive(message []byte) ([]byte, error) 
 	}
 
 	response := make([]byte, 1024)
-	crh.Conn.SetReadDeadline(time.Now().Add(30 * time.Second)) // Set a read deadline
+	crh.Conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 	n, err := crh.Conn.Read(response)
 	if err != nil {
 		err = crh.ErrorHandler.HandleError(&crh.Conn, err)

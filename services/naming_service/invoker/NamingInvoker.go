@@ -57,7 +57,7 @@ func (NamingInvoker) Invoke() {
 			responseParams[0] = namingService.List()
 		}
 
-		repHeader := miop.ReplyHeader{Context: "context", RequestId: miopPacketRequest.Body.ReqHeader.RequestId, Status: 1}
+		repHeader := miop.ReplyHeader{Context: "Success", RequestId: miopPacketRequest.Body.ReqHeader.RequestId, Status: 100}
 		repBody := miop.ReplyBody{OperationResult: responseParams}
 
 		header := miop.Header{Magic: "MIOP", Version: "1.0", ByteOrder: true, MessageType: 2, Size: 0}

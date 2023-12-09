@@ -49,6 +49,11 @@ func (r *Requestor) Invoke(invoker shared.Invocation) interface{} {
 	miopPacketReply := marshaller.Unmarshall(msgFromServerBytes)
 	interceptor.Intercept(miopPacketReply, false)
 
+	if miopPacketReply.Body.RepHeader.Status != 100 {
+		errMessage := miopPacketReply.Body.RepHeader.Context
+		panic(errMessage)
+	}
+
 	response := miopPacketReply.Body.RepBody.OperationResult
 
 	return response

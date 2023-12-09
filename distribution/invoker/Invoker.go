@@ -2,7 +2,6 @@ package invoker
 
 import (
 	"strconv"
-	"time"
 
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/marshaller"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/miop"
@@ -22,6 +21,7 @@ func (i Invoker) Invoke() {
 	marshaller := marshaller.Marshaller{}
 	replyParams := make([]interface{}, 1)
 	calculator := NewPercentageCalculatorInvoker()
+	context := "Success"
 
 	for {
 		messageReceived, err := srh.ReceiveMessage()
@@ -38,6 +38,7 @@ func (i Invoker) Invoke() {
 			params := miopPacketRequest.Body.ReqBody.Body
 			if len(params) != 2 {
 				status = 101 // Logical error: Invalid number of parameters
+				context = err.Error()
 				break
 			}
 			percentage := int(params[0].(float64))
@@ -45,6 +46,7 @@ func (i Invoker) Invoke() {
 			result, err := calculator.GetValueOf(percentage, totalValue)
 			if err != nil {
 				status = 101 // Logical error: Other calculation error
+				context = err.Error()
 				break
 			}
 			replyParams[0] = result
@@ -53,6 +55,7 @@ func (i Invoker) Invoke() {
 			params := miopPacketRequest.Body.ReqBody.Body
 			if len(params) != 2 {
 				status = 101 // Logical error: Invalid number of parameters
+				context = err.Error()
 				break
 			}
 			partialValue := int(params[0].(float64))
@@ -60,6 +63,7 @@ func (i Invoker) Invoke() {
 			result, err := calculator.GetPercentageOf(partialValue, totalValue)
 			if err != nil {
 				status = 101 // Logical error: Other calculation error
+				context = err.Error()
 				break
 			}
 			replyParams[0] = result
@@ -68,7 +72,7 @@ func (i Invoker) Invoke() {
 			status = 101 // Logical error: Unsupported operation
 		}
 
-		repHeader := miop.ReplyHeader{Context: "context", RequestId: miopPacketRequest.Body.ReqHeader.RequestId, Status: status}
+		repHeader := miop.ReplyHeader{Context: context, RequestId: miopPacketRequest.Body.ReqHeader.RequestId, Status: status}
 		repBody := miop.ReplyBody{OperationResult: replyParams}
 
 		header := miop.Header{Magic: "MIOP", Version: "1.0", ByteOrder: true, MessageType: 2, Size: 0}
@@ -78,7 +82,7 @@ func (i Invoker) Invoke() {
 		marshalledReply := marshaller.Marshall(miopPacketReply)
 
 		// Sleep 10 minutes
-		time.Sleep(10 * time.Minute)
+		//time.Sleep(10 * time.Minute)
 
 		srh.SendMessage(marshalledReply)
 	}
