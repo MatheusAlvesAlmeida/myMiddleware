@@ -2,7 +2,6 @@ package srh
 
 import (
 	"fmt"
-	"io"
 	"net"
 )
 
@@ -32,32 +31,43 @@ func (srh *ServerRequestHandlerTCP) ReceiveMessage() ([]byte, error) {
 		}
 		defer listener.Close()
 
-		conn, err = listener.Accept()
+		fmt.Println("------------------------------------------------------")
+		fmt.Printf("Server running on %s\n", listenAddr)
+		fmt.Println("Waiting for connections...")
 
-		fmt.Printf("Debug info - Received TCP connection from %s\n", conn.RemoteAddr().String())
+		for {
+			conn, err = listener.Accept()
 
-		if err != nil {
-			return nil, err
-		} else {
-			srh.Conn = conn
+			fmt.Printf("Received connection from %s\n", conn.RemoteAddr().String())
+
+			if err != nil {
+				fmt.Printf("Error accepting connection: %s\n", err)
+				continue
+			} else {
+				srh.Conn = conn
+				break
+			}
 		}
 	} else {
 		conn = srh.Conn
-		fmt.Println("Debug info - Reusing TCP connection")
+		fmt.Println("------------------------------------------------------")
+		fmt.Println("Waiting for messages...")
 	}
 
 	buffer := make([]byte, 1024)
-	n, err := conn.Read(buffer)
+	for {
+		n, err := conn.Read(buffer)
 
-	if err != nil {
-		if err == io.EOF {
-			fmt.Println("Client disconnected")
+		if err != nil {
+			fmt.Printf("Connection Lost! Log error: %s\n", err)
+			srh.Conn = nil
 			return nil, err
 		}
-		return nil, err
-	}
 
-	return buffer[:n], nil
+		if n > 0 {
+			return buffer[:n], nil
+		}
+	}
 }
 
 func (srh *ServerRequestHandlerTCP) SendMessage(message []byte) {
@@ -68,5 +78,13 @@ func (srh *ServerRequestHandlerTCP) SendMessage(message []byte) {
 	_, err := srh.Conn.Write(message)
 	if err != nil {
 		fmt.Printf("Error sending response: %s\n", err)
+	}
+	fmt.Println("Response sent in connection: ", srh.Conn.RemoteAddr().String())
+}
+
+func (srh *ServerRequestHandlerTCP) Close() {
+	if srh.Conn != nil {
+		srh.Conn.Close()
+		srh.Conn = nil
 	}
 }
