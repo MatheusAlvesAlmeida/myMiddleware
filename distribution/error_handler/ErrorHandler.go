@@ -33,7 +33,27 @@ func (eh *ErrorHandler) HandleError(conn *net.Conn, err error) error {
 	return err
 }
 
+func (eh *ErrorHandler) HandleConnectionError(conn *net.Conn, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	if *conn != nil {
+		_ = (*conn).Close()
+		*conn = nil
+	}
+
+	if eh.RetryAttempts < 3 {
+		backoff := eh.backoffDuration()
+		time.Sleep(backoff)
+		eh.RetryAttempts++
+		return errors.New("connection timeout: retrying")
+	}
+
+	return err
+}
+
 func (eh *ErrorHandler) backoffDuration() time.Duration {
-	// Exponential backoff formula: 5 * 2^(retryAttempts-1) seconds
-	return time.Duration(5*(1<<uint(eh.RetryAttempts-1))) * time.Second
+	retryAttemptNumber := eh.RetryAttempts
+	return time.Duration(retryAttemptNumber) * time.Second
 }

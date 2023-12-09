@@ -2,6 +2,7 @@ package invoker
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/marshaller"
 	"github.com/MatheusAlvesAlmeida/myMiddleware/distribution/miop"
@@ -75,6 +76,9 @@ func (i Invoker) Invoke() {
 
 		miopPacketReply := miop.Packet{Header: header, Body: body}
 		marshalledReply := marshaller.Marshall(miopPacketReply)
+
+		// Sleep 10 minutes
+		time.Sleep(10 * time.Minute)
 
 		srh.SendMessage(marshalledReply)
 	}

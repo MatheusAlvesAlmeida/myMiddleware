@@ -1,6 +1,7 @@
 package crh
 
 import (
+	"fmt"
 	"net"
 	"time"
 
@@ -21,12 +22,19 @@ func NewClientRequestHandlerTCP(serverAddress string) *ClientRequestHandlerTCP {
 }
 
 func (crh *ClientRequestHandlerTCP) establishConnection() error {
-	conn, err := net.Dial("tcp", crh.ServerAddress)
-	if err != nil {
-		return err
+	for {
+		conn, err := net.Dial("tcp", crh.ServerAddress)
+		if err != nil {
+			fmt.Println("Error connecting to server: ", err)
+			err = crh.ErrorHandler.HandleConnectionError(&crh.Conn, err)
+			if err != nil && err.Error() == "connection timeout: retrying" {
+				continue // Retry connection establishment
+			}
+			return err // Return the error if retries are exhausted or other errors occur
+		}
+		crh.Conn = conn
+		return nil // Successful connection establishment
 	}
-	crh.Conn = conn
-	return nil
 }
 
 func (crh *ClientRequestHandlerTCP) SendReceive(message []byte) ([]byte, error) {
@@ -47,13 +55,14 @@ func (crh *ClientRequestHandlerTCP) SendReceive(message []byte) ([]byte, error) 
 	}
 
 	response := make([]byte, 1024)
-	crh.Conn.SetReadDeadline(time.Now().Add(5 * time.Second)) // Set a read deadline
+	crh.Conn.SetReadDeadline(time.Now().Add(30 * time.Second)) // Set a read deadline
 	n, err := crh.Conn.Read(response)
 	if err != nil {
 		err = crh.ErrorHandler.HandleError(&crh.Conn, err)
 		if err != nil {
-			return nil, err
+			fmt.Println("Error reading from connection: ", err)
 		}
+
 		return crh.SendReceive(message) // Retry handled by error handler
 	}
 
