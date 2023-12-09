@@ -11,8 +11,10 @@ import (
 )
 
 type InvocationInterceptor struct {
-	requestTime    time.Time
-	requestContext string
+	requestTime          time.Time
+	marshallingStartTime time.Time
+	marshallingEndTime   time.Time
+	requestContext       string
 }
 
 const timestampFormat = "2006-01-02 15:04:05"
@@ -21,7 +23,7 @@ func NewInvocationInterceptor() InvocationInterceptor {
 	return InvocationInterceptor{}
 }
 
-func (i *InvocationInterceptor) Intercept(invocation miop.Packet, isRequest bool) {
+func (i *InvocationInterceptor) Intercept(invocation miop.Packet, isRequest bool, getMarshallingTime bool) {
 	context := invocation.Body.ReqHeader.Context
 	// If context is not PercentageOperation, do not log
 	if context == "NamingOperation" {
@@ -47,10 +49,13 @@ func (i *InvocationInterceptor) Intercept(invocation miop.Packet, isRequest bool
 	defer file.Close()
 	var line string
 
-	if isRequest {
+	if isRequest && !getMarshallingTime {
 		i.requestTime = time.Now()
 		i.requestContext = context
+		i.marshallingStartTime = time.Now()
 		return
+	} else if getMarshallingTime {
+		i.marshallingEndTime = time.Now()
 	} else {
 		elapsedTime := time.Since(i.requestTime)
 
@@ -61,10 +66,11 @@ func (i *InvocationInterceptor) Intercept(invocation miop.Packet, isRequest bool
 		repHeaderSize := unsafe.Sizeof(invocation.Body.RepHeader)
 		repBodySize := unsafe.Sizeof(invocation.Body.RepBody)
 
-		// Get response code/status
 		responseStatus := invocation.Body.RepHeader.Status
+		responseContext := invocation.Body.RepHeader.Context
+		marshallingTime := i.marshallingEndTime.Sub(i.marshallingStartTime)
 
-		line = fmt.Sprintf("%v,%s,%v,%d,%d,%d,%d,%d,%d\n", i.requestTime.Format(timestampFormat), i.requestContext, elapsedTime, headerSize, reqHeaderSize, reqBodySize, repHeaderSize, repBodySize, responseStatus)
+		line = fmt.Sprintf("%v,%s,%v,%d,%d,%d,%d,%d,%d,%s,%d\n", i.requestTime.Format(timestampFormat), i.requestContext, elapsedTime, headerSize, reqHeaderSize, reqBodySize, repHeaderSize, repBodySize, responseStatus, responseContext, marshallingTime)
 	}
 
 	_, err = file.WriteString(line)

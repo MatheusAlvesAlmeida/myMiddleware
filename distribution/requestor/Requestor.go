@@ -38,16 +38,17 @@ func (r *Requestor) Invoke(invoker shared.Invocation) interface{} {
 
 	marshaller := marshaller.Marshaller{}
 	miopPacketRequest := __mountRequestPacket(invoker)
-	interceptor.Intercept(miopPacketRequest, true)
+	interceptor.Intercept(miopPacketRequest, true, false)
 
 	msgToClientBytes := marshaller.Marshall(miopPacketRequest)
+	interceptor.Intercept(miopPacketRequest, false, true)
 
 	msgFromServerBytes, err := r.ClientRequestHandler.SendReceive(msgToClientBytes)
 	if err != nil {
 		panic(err)
 	}
 	miopPacketReply := marshaller.Unmarshall(msgFromServerBytes)
-	interceptor.Intercept(miopPacketReply, false)
+	interceptor.Intercept(miopPacketReply, false, false)
 
 	if miopPacketReply.Body.RepHeader.Status != 100 {
 		errMessage := miopPacketReply.Body.RepHeader.Context
